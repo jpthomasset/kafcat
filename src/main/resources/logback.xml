@@ -1,0 +1,13 @@
+<configuration>
+    <!-- Stop output INFO at start -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+
+    <logger name="org.apache.kafka" level="WARN"/>
+    <logger name="io.confluent.kafka" level="WARN"/>
+    
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>
