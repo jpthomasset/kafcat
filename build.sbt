@@ -16,6 +16,10 @@ lazy val root = (project in file("."))
     buildInfoKeys        := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage     := "kafcat",
     Compile / run / fork := true,
+    resolvers ++= Seq(
+      "confluent".at("https://packages.confluent.io/maven/"),
+      "confluent-avro".at("https://packages.confluent.io/maven/io/confluent/kafka-avro-serializer/")
+    ),
     scalacOptions ++= Seq(
       "-encoding",
       "UTF-8",
