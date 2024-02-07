@@ -5,7 +5,7 @@ Small utility to subscribe to kafka topic and print events to stdout
 # Usage
 
 ```
-Usage: kafcat [--abort] [--quiet] [--broker <string>] [--groupid <string>] [--registry <string>] [--key-deserializer <Deserializer>] [--value-deserializer <Deserializer>] <topic>
+Usage: kafcat [--abort] [--quiet] [--broker <string>] [--groupid <string>] [--registry <string>] [--key-deserializer <Deserializer>] [--value-deserializer <Deserializer>] [--format <string>] <topic>
 
 Consume events from a Kafka topic and print them to stdout
 
@@ -25,7 +25,24 @@ Options and flags:
     --registry <string>, -r <string>
         Registry URL
     --key-deserializer <Deserializer>, -k <Deserializer>
-        Key deserializer, one of string, long, avro
+        Key deserializer. Default is string. One of:
+         * string
+         * long
+         * avro
+         * raw
     --value-deserializer <Deserializer>, -v <Deserializer>
-        Value deserializer, one of string, long, avro
+        Value deserializer. Default is string. One of:
+         * string
+         * long
+         * avro
+         * raw
+    --format <string>, -f <string>
+        Output format with templating. Default is "%k => %v". Valid template variables are:
+         * %k Key
+         * %v Value
+         * %t Topic name
+         * %p Partition
+         * %o Offset
+         * %d Timestamp
+         * %h Headers
 ```
