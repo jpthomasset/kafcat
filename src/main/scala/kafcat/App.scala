@@ -14,10 +14,21 @@ object App
       version = kafcat.BuildInfo.version
     ) {
 
-  def getDeserializer(arg: DeserializerType, schemaRegistryUrl: String): DeserializerTag = arg match {
-    case DeserializerType.String => StringDeserializer
-    case DeserializerType.Long   => LongDeserializer
-    case DeserializerType.Avro   => AvroDeserializer(schemaRegistryUrl)
+  def getDeserializerTag(arg: DeserializerType, cliArgs: CliParser.CliArgument): DeserializerTag =
+    arg match {
+      case DeserializerType.String => StringDeserializer
+      case DeserializerType.Long   => LongDeserializer
+      case DeserializerType.Avro   => AvroDeserializer(cliArgs.registry)
+      case DeserializerType.Raw    => RawDeserializer
+    }
+
+  def getShow(tag: DeserializerTag): Show[tag.Type] = tag match {
+    case RawDeserializer =>
+      Show
+        .show[RawDeserializer.Type](xs => s"Array(${xs.map("0x%02x".format(_)).mkString(", ")})")
+        .asInstanceOf[Show[tag.Type]]
+
+    case _ => Show.fromToString[tag.Type]
   }
 
   def customSettings[K, V](
@@ -42,26 +53,20 @@ object App
       .withBootstrapServers(bootstrapServer)
       .withGroupId(groupId)
 
-  def consumeToStdout[K, V](cliArgs: CliParser.CliArgument): IO[Unit] = {
-    val k = getDeserializer(cliArgs.keyDeserializer, cliArgs.registry).build()
-    val v = getDeserializer(cliArgs.valueDeserializer, cliArgs.registry).build()
+  def consumeToStdout(cliArgs: CliParser.CliArgument): IO[Unit] = {
+    val k = getDeserializerTag(cliArgs.keyDeserializer, cliArgs)
+    val v = getDeserializerTag(cliArgs.valueDeserializer, cliArgs)
+
+    val showK = getShow(k)
+    val showV = getShow(v)
 
     KafkaConsumer
-      .stream(customSettings(cliArgs.broker, cliArgs.groupId, k, v))
+      .stream(customSettings(cliArgs.broker, cliArgs.groupId, k.build, v.build))
       .subscribeTo(cliArgs.topic)
       .records
-      .foreach(cr => printRecord(cr.record))
+      .foreach(cr => IO.println(RecordFormater.format(cr.record, cliArgs.format)(showK, showV)))
       .compile
       .drain
-  }
-
-  def printRecord[K, V](
-    record: ConsumerRecord[K, V]
-  )(implicit KS: Show[K] = Show.fromToString[K], VS: Show[V] = Show.fromToString[V]): IO[Unit] = {
-    val k = Show[K].show(record.key)
-    val v = Option(record.value).map(Show[V].show(_)).getOrElse("null")
-
-    IO.println(s"$k => $v")
   }
 
   override def main: Opts[IO[ExitCode]] =

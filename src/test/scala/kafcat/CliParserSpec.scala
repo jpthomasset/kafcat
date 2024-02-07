@@ -35,5 +35,28 @@ class CliParserSpec extends AnyWordSpec with Matchers {
       testParser.parse(List("--broker", "some-broker:9999", "some-topic")) should be(expected)
       testParser.parse(List("-b", "some-broker:9999", "some-topic")) should be(expected)
     }
+
+    "parse key deserializer option" in {
+      CliParser.deserializerMap.foreach { case (k, v) =>
+        val expected = Right(CliArgument("some-topic", keyDeserializer = v))
+        testParser.parse(List("--key-deserializer", k, "some-topic")) should be(expected)
+        testParser.parse(List("-k", k, "some-topic")) should be(expected)
+      }
+    }
+
+    "parse value deserializer option" in {
+      CliParser.deserializerMap.foreach { case (k, v) =>
+        val expected = Right(CliArgument("some-topic", valueDeserializer = v))
+        testParser.parse(List("--value-deserializer", k, "some-topic")) should be(expected)
+        testParser.parse(List("-v", k, "some-topic")) should be(expected)
+      }
+    }
+
+    "parse format option" in {
+      val format   = "[partition %p offset %o at %d] %k => %h"
+      val expected = Right(CliArgument("some-topic", format = format))
+      testParser.parse(List("--format", format, "some-topic")) should be(expected)
+      testParser.parse(List("-f", format, "some-topic")) should be(expected)
+    }
   }
 }
