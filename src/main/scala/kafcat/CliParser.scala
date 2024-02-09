@@ -2,6 +2,9 @@ package kafcat
 
 import cats.implicits._
 import com.monovore.decline._
+import fastparse._
+import cats.data.Validated
+import cats.data.NonEmptyList
 
 object CliParser {
 
@@ -21,7 +24,8 @@ object CliParser {
     registry: String = "localhost:9090",
     keyDeserializer: DeserializerType = DeserializerType.String,
     valueDeserializer: DeserializerType = DeserializerType.String,
-    format: String = "%k => %v"
+    format: String = "%k => %v",
+    predicate: Option[Predicate] = None
   )
 
   val deserializerMap = Map(
@@ -66,8 +70,18 @@ object CliParser {
     )
     .withDefault("%k => %v")
 
+  val predicate = Opts
+    .option[String]("predicate", "Predicate to filter records", "p")
+    .mapValidated(s =>
+      fastparse.parse(s, PredicateParser.predicate(_)) match {
+        case Parsed.Success(p, _) => Validated.valid(p)
+        case f: Parsed.Failure    => Validated.invalid(NonEmptyList.of(f.msg))
+      }
+    )
+    .orNone
+
   val parse: Opts[CliArgument] =
-    (topic, abortOnFailure, quiet, broker, groupId, registry, keyDeserializer, valueDeserializer, format)
+    (topic, abortOnFailure, quiet, broker, groupId, registry, keyDeserializer, valueDeserializer, format, predicate)
       .mapN(CliArgument.apply)
 
 }

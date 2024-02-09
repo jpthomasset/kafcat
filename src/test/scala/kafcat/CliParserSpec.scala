@@ -58,5 +58,14 @@ class CliParserSpec extends AnyWordSpec with Matchers {
       testParser.parse(List("--format", format, "some-topic")) should be(expected)
       testParser.parse(List("-f", format, "some-topic")) should be(expected)
     }
+
+    "parse predicate option" in {
+      val predicateString = "field.id == 13"
+      val predicate       = IsEqual(Field(List("field", "id")), NumberConstant(13))
+      val expected        = Right(CliArgument("some-topic", predicate = Some(predicate)))
+
+      testParser.parse(List("--predicate", predicateString, "some-topic")) should be(expected)
+      testParser.parse(List("-p", predicateString, "some-topic")) should be(expected)
+    }
   }
 }

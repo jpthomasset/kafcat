@@ -54,6 +54,8 @@ object App
       .withGroupId(groupId)
 
   def consumeToStdout(cliArgs: CliParser.CliArgument): IO[Unit] = {
+    import kafcat.eval
+
     val k = getDeserializerTag(cliArgs.keyDeserializer, cliArgs)
     val v = getDeserializerTag(cliArgs.valueDeserializer, cliArgs)
 
@@ -64,6 +66,7 @@ object App
       .stream(customSettings(cliArgs.broker, cliArgs.groupId, k.build, v.build))
       .subscribeTo(cliArgs.topic)
       .records
+      .filter(cr => cliArgs.predicate.map(_.eval(cr.record)).getOrElse(true))
       .foreach(cr => IO.println(RecordFormater.format(cr.record, cliArgs.format)(showK, showV)))
       .compile
       .drain

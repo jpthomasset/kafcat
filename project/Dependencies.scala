@@ -12,6 +12,7 @@ object Dependencies {
     lazy val confluent                  = "7.5.1"
     lazy val log4cats                   = "2.6.0"
     lazy val logback                    = "1.4.14"
+    lazy val fastparse                  = "3.0.2"
   }
 
   lazy val libraries: Seq[ModuleID] = Seq(
@@ -22,7 +23,8 @@ object Dependencies {
     "com.monovore"    %% "decline-effect"          % Versions.decline,
     "org.typelevel"   %% "cats-effect"             % Versions.catsEffect,
     "io.confluent"     % "kafka-schema-serializer" % Versions.confluent,
-    "io.confluent"     % "kafka-avro-serializer"   % Versions.confluent
+    "io.confluent"     % "kafka-avro-serializer"   % Versions.confluent,
+    "com.lihaoyi"     %% "fastparse"               % Versions.fastparse
   )
 
   lazy val testLibraries: Seq[ModuleID] = Seq(
