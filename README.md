@@ -18,11 +18,11 @@ Options and flags:
         Abort on failure
     --quiet, -q
         Do not output failures to stderr
-    --broker <string>, -b <string>
+    --broker <url>, -b <url>
         Broker address and port
     --groupid <string>, -g <string>
         Consumer Group ID
-    --registry <string>, -r <string>
+    --registry <url>, -r <url>
         Registry URL
     --key-deserializer <Deserializer>, -k <Deserializer>
         Key deserializer. Default is string. One of:
@@ -45,6 +45,8 @@ Options and flags:
          * %o Offset
          * %d Timestamp
          * %h Headers
-    --number <integer>, -n <integer>
-         Take N records and quit
+    --number <N>, -n <N>
+        Take N records and quit
+    --skip <N>, -s <N>
+        Skip N records and quit
 ```

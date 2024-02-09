@@ -47,9 +47,9 @@ object CliParser {
   val topic             = Opts.argument[String]("topic")
   val abortOnFailure    = Opts.flag("abort", "Abort on failure", "a").orFalse
   val quiet             = Opts.flag("quiet", "Do not output failures to stderr", "q").orFalse
-  val broker            = Opts.option[String]("broker", "Broker address and port", "b").withDefault("localhost:9092")
+  val broker            = Opts.option[String]("broker", "Broker address and port", "b", "url").withDefault("localhost:9092")
   val groupId           = Opts.option[String]("groupid", "Consumer Group ID", "g").withDefault("kafcat")
-  val registry          = Opts.option[String]("registry", "Registry URL", "r").withDefault("localhost:9090")
+  val registry          = Opts.option[String]("registry", "Registry URL", "r", "url").withDefault("localhost:9090")
   val keyDeserializer   = Opts
     .option[DeserializerType]("key-deserializer", s"Key deserializer. Default is string. $deserialierNames", "k")
     .withDefault(DeserializerType.String)
