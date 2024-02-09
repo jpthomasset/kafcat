@@ -66,5 +66,16 @@ class Fs2PipesSpec extends AsyncWordSpec with AsyncIOSpec with Matchers {
         .assertThrows[Exception]
     }
 
+    "take only the number of line requested" in {
+      val input = (1 to 10).map(n => s"content$n")
+      Stream
+        .emits(input)
+        .through(Fs2Pipes.take(Some(4)))
+        .compile
+        .count
+        .asserting(_ shouldBe 4)
+
+    }
+
   }
 }

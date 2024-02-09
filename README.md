@@ -45,4 +45,6 @@ Options and flags:
          * %o Offset
          * %d Timestamp
          * %h Headers
+    --number <integer>, -n <integer>
+         Take N records and quit
 ```

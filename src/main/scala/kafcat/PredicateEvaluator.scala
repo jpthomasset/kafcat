@@ -6,7 +6,7 @@ extension (p: Predicate) {
   def eval(record: ConsumerRecord[_, _]): Boolean = p match {
     case IsEqual(left, right) =>
       val x = getValue(record, left) == getValue(record, right)
-      println(s"IsEqual: $x")
+      // println(s"IsEqual: $x")
       x
 
     case _ => false

@@ -25,7 +25,8 @@ object CliParser {
     keyDeserializer: DeserializerType = DeserializerType.String,
     valueDeserializer: DeserializerType = DeserializerType.String,
     format: String = "%k => %v",
-    predicate: Option[Predicate] = None
+    predicate: Option[Predicate] = None,
+    number: Option[Int] = None
   )
 
   val deserializerMap = Map(
@@ -80,8 +81,24 @@ object CliParser {
     )
     .orNone
 
+  val number = Opts
+    .option[Int]("number", "Take N records and quit", "n")
+    .orNone
+
   val parse: Opts[CliArgument] =
-    (topic, abortOnFailure, quiet, broker, groupId, registry, keyDeserializer, valueDeserializer, format, predicate)
+    (
+      topic,
+      abortOnFailure,
+      quiet,
+      broker,
+      groupId,
+      registry,
+      keyDeserializer,
+      valueDeserializer,
+      format,
+      predicate,
+      number
+    )
       .mapN(CliArgument.apply)
 
 }

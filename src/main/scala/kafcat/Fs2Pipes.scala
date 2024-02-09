@@ -61,4 +61,16 @@ object Fs2Pipes {
       case Failure(_) => Stream.empty
     })
 
+  /**
+   * Pipe to take only a subset of stream
+   *
+   * @param take
+   *   Number of element to take, set to None for all
+   */
+  def take[T](take: Option[Int]): Pipe[IO, T, T] = s =>
+    if (take.isDefined)
+      s.take(take.get)
+    else
+      s
+
 }
