@@ -13,6 +13,7 @@ object Dependencies {
     lazy val log4cats                   = "2.6.0"
     lazy val logback                    = "1.4.14"
     lazy val fastparse                  = "3.0.2"
+    lazy val avro4s                     = "5.0.9"
   }
 
   lazy val libraries: Seq[ModuleID] = Seq(
@@ -28,7 +29,8 @@ object Dependencies {
   )
 
   lazy val testLibraries: Seq[ModuleID] = Seq(
-    "org.scalatest" %% "scalatest"                     % Versions.scalatest                  % Test,
-    "org.typelevel" %% "cats-effect-testing-scalatest" % Versions.catsEffectTestingScalatest % Test
+    "org.scalatest"      %% "scalatest"                     % Versions.scalatest                  % Test,
+    "org.typelevel"      %% "cats-effect-testing-scalatest" % Versions.catsEffectTestingScalatest % Test,
+    "com.sksamuel.avro4s" % "avro4s-core_3"                 % Versions.avro4s                     % Test // Only to generate avro schema and record
   )
 }
