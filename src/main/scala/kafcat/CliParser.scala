@@ -26,7 +26,8 @@ object CliParser {
     valueDeserializer: DeserializerType = DeserializerType.String,
     format: String = "%k => %v",
     predicate: Option[Predicate] = None,
-    number: Option[Int] = None
+    number: Option[Int] = None,
+    skip: Option[Int] = None
   )
 
   val deserializerMap = Map(
@@ -82,7 +83,11 @@ object CliParser {
     .orNone
 
   val number = Opts
-    .option[Int]("number", "Take N records and quit", "n")
+    .option[Int]("number", "Take N records and quit", "n", "N")
+    .orNone
+
+  val skip = Opts
+    .option[Int]("skip", "Skip N records and quit", "s", "N")
     .orNone
 
   val parse: Opts[CliArgument] =
@@ -97,7 +102,8 @@ object CliParser {
       valueDeserializer,
       format,
       predicate,
-      number
+      number,
+      skip
     )
       .mapN(CliArgument.apply)
 

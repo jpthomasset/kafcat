@@ -73,4 +73,16 @@ object Fs2Pipes {
     else
       s
 
+  /**
+   * Pipe to skip N records of a stream
+   *
+   * @param skip
+   *   Number of element to skip, set to None for all
+   */
+  def skip[T](skip: Option[Int]): Pipe[IO, T, T] = s =>
+    if (skip.isDefined)
+      s.drop(skip.get)
+    else
+      s
+
 }

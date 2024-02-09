@@ -67,5 +67,19 @@ class CliParserSpec extends AnyWordSpec with Matchers {
       testParser.parse(List("--predicate", predicateString, "some-topic")) should be(expected)
       testParser.parse(List("-p", predicateString, "some-topic")) should be(expected)
     }
+
+    "parse number option" in {
+      val expected = Right(CliArgument("some-topic", number = Some(10)))
+
+      testParser.parse(List("--number", "10", "some-topic")) should be(expected)
+      testParser.parse(List("-n", "10", "some-topic")) should be(expected)
+    }
+
+    "parse skip option" in {
+      val expected = Right(CliArgument("some-topic", skip = Some(10)))
+
+      testParser.parse(List("--skip", "10", "some-topic")) should be(expected)
+      testParser.parse(List("-s", "10", "some-topic")) should be(expected)
+    }
   }
 }

@@ -77,5 +77,16 @@ class Fs2PipesSpec extends AsyncWordSpec with AsyncIOSpec with Matchers {
 
     }
 
+    "skip the number of line requested" in {
+      val input = (1 to 10).map(n => s"content$n")
+      Stream
+        .emits(input)
+        .through(Fs2Pipes.skip(Some(4)))
+        .compile
+        .count
+        .asserting(_ shouldBe 6)
+
+    }
+
   }
 }
