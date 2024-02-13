@@ -1,7 +1,8 @@
 package kafcat
 
 import fs2.kafka.ConsumerRecord
-import org.apache.avro.generic.GenericRecord
+import org.apache.avro.generic.{GenericData, GenericRecord}
+import org.apache.avro.util.Utf8
 
 extension (p: Predicate) {
   def eval(record: ConsumerRecord[_, _]): Boolean = p match {
@@ -11,7 +12,6 @@ extension (p: Predicate) {
     case Or(left, right)  => left.eval(record) || right.eval(record)
     case And(left, right) => left.eval(record) && right.eval(record)
 
-    case _ => false
   }
 
   private def getValue(record: ConsumerRecord[_, _], value: Value): Option[Constant] =
@@ -47,10 +47,12 @@ extension (p: Predicate) {
 
   private def getAsConstant(value: Any): Option[Constant] =
     value match {
-      case i: Int    => Some(NumberConstant(i))
-      case l: Long   => Some(NumberConstant(l.toDouble))
-      case d: Double => Some(NumberConstant(d))
-      case s: String => Some(StringConstant(s))
-      case _         => None
+      case i: Int                    => Some(NumberConstant(i))
+      case l: Long                   => Some(NumberConstant(l.toDouble))
+      case d: Double                 => Some(NumberConstant(d))
+      case s: String                 => Some(StringConstant(s))
+      case u: Utf8                   => Some(StringConstant(u.toString))
+      case s: GenericData.EnumSymbol => Some(StringConstant(s.toString))
+      case _                         => None
     }
 }

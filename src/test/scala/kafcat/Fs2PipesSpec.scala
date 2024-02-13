@@ -87,6 +87,5 @@ class Fs2PipesSpec extends AsyncWordSpec with AsyncIOSpec with Matchers {
         .asserting(_ shouldBe 6)
 
     }
-
   }
 }

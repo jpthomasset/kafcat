@@ -1,5 +1,7 @@
 package kafcat
 
+import scala.concurrent.duration._
+
 import com.monovore.decline.Command
 import kafcat.CliParser.CliArgument
 import org.scalatest.matchers.should.Matchers
@@ -80,6 +82,12 @@ class CliParserSpec extends AnyWordSpec with Matchers {
 
       testParser.parse(List("--skip", "10", "some-topic")) should be(expected)
       testParser.parse(List("-s", "10", "some-topic")) should be(expected)
+    }
+
+    "parse timeout option" in {
+      val expected = Right(CliArgument("some-topic", timeout = Some(10.seconds)))
+
+      testParser.parse(List("--timeout", "10", "some-topic")) should be(expected)
     }
   }
 }

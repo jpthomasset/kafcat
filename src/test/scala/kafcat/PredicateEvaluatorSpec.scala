@@ -1,14 +1,17 @@
 package kafcat
 
+import com.sksamuel.avro4s.{AvroSchema, ToRecord}
+import fs2.kafka.ConsumerRecord
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import com.sksamuel.avro4s.AvroSchema
-import com.sksamuel.avro4s.ToRecord
-import fs2.kafka.ConsumerRecord
 
 class PredicateEvaluatorSpec extends AnyWordSpec with Matchers {
 
-  case class TestSimpleEvent(id: Int, name: String)
+  enum TestEnum {
+    case One, Two, Three
+  }
+
+  case class TestSimpleEvent(id: Int, name: String, position: TestEnum = TestEnum.One)
   case class TestEvent(id: Int, name: String, sub: TestSubEvent)
   case class TestSubEvent(subname: String, subage: Int)
 
@@ -45,6 +48,13 @@ class PredicateEvaluatorSpec extends AnyWordSpec with Matchers {
         val evt       = simpleEventToRecord.to(TestSimpleEvent(12, "some name"))
         val cr        = ConsumerRecord("topic", 0, 0, 12, evt)
         val predicate = IsEqual(Field(List("value", "id")), NumberConstant(12))
+        predicate.eval(cr) should be(true)
+      }
+
+      "evaluate equality with enum field" in {
+        val evt       = simpleEventToRecord.to(TestSimpleEvent(12, "some name", TestEnum.Two))
+        val cr        = ConsumerRecord("topic", 0, 0, 12, evt)
+        val predicate = IsEqual(Field(List("value", "position")), StringConstant("Two"))
         predicate.eval(cr) should be(true)
       }
 

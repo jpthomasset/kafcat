@@ -2,10 +2,12 @@ package kafcat
 
 import cats.Show
 import cats.effect.{ExitCode, IO}
+import cats.effect.std.Console
 import com.monovore.decline.Opts
 import com.monovore.decline.effect.CommandIOApp
 import fs2.kafka._
 import kafcat.CliParser.DeserializerType
+import kafcat.Fs2Pipes.NoMoreEventException
 
 object App
     extends CommandIOApp(
@@ -54,7 +56,6 @@ object App
       .withGroupId(groupId)
 
   def consumeToStdout(cliArgs: CliParser.CliArgument): IO[Unit] = {
-    import kafcat.eval
 
     val k = getDeserializerTag(cliArgs.keyDeserializer, cliArgs)
     val v = getDeserializerTag(cliArgs.valueDeserializer, cliArgs)
@@ -66,11 +67,13 @@ object App
       .stream(customSettings(cliArgs.broker, cliArgs.groupId, k.build, v.build))
       .subscribeTo(cliArgs.topic)
       .records
+      .through(Fs2Pipes.timeoutWhenNoEvent(cliArgs.timeout))
       .filter(cr => cliArgs.predicate.map(_.eval(cr.record)).getOrElse(true))
       .through(Fs2Pipes.take(cliArgs.number))
       .foreach(cr => IO.println(RecordFormater.format(cr.record, cliArgs.format)(showK, showV)))
       .compile
       .drain
+      .recoverWith { case NoMoreEventException(s) => Console[IO].errorln(s) }
   }
 
   override def main: Opts[IO[ExitCode]] =

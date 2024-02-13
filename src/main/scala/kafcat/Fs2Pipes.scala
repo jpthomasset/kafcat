@@ -1,12 +1,17 @@
 package kafcat
 
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 import cats.effect.IO
+import cats.effect.kernel.Clock
 import fs2.{Pipe, Stream, text}
 import fs2.io.file.{Files, Path}
+import fs2.timeseries.TimeStamped
 
 object Fs2Pipes {
+
+  case class NoMoreEventException(reason: String) extends Exception(reason)
 
   /**
    * Pipe to convert a Byte stream to string lines stream
@@ -68,10 +73,9 @@ object Fs2Pipes {
    *   Number of element to take, set to None for all
    */
   def take[T](take: Option[Int]): Pipe[IO, T, T] = s =>
-    if (take.isDefined)
-      s.take(take.get)
-    else
-      s
+    take match
+      case Some(n) => s.take(n)
+      case _       => s
 
   /**
    * Pipe to skip N records of a stream
@@ -80,9 +84,26 @@ object Fs2Pipes {
    *   Number of element to skip, set to None for all
    */
   def skip[T](skip: Option[Int]): Pipe[IO, T, T] = s =>
-    if (skip.isDefined)
-      s.drop(skip.get)
-    else
-      s
+    skip match
+      case Some(n) => s.drop(n)
+      case _       => s
+
+  /**
+   * Timeout when no more event after some time
+   *
+   * @param maybeTimeout
+   * @return
+   */
+  def timeoutWhenNoEvent[T](maybeTimeout: Option[FiniteDuration]): Pipe[IO, T, T] = s =>
+    maybeTimeout match {
+      case Some(timeout) =>
+        s.evalMap(cr => Clock[IO].realTime.map(TimeStamped(_, cr)))
+          .timeoutOnPullTo(
+            timeout,
+            Stream.raiseError[IO](NoMoreEventException(s"No more event to process after $timeout"))
+          )
+          .map(_.value)
+      case None          => s
+    }
 
 }

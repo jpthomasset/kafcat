@@ -1,10 +1,11 @@
 package kafcat
 
+import scala.concurrent.duration._
+
+import cats.data.{NonEmptyList, Validated}
 import cats.implicits._
 import com.monovore.decline._
 import fastparse._
-import cats.data.Validated
-import cats.data.NonEmptyList
 
 object CliParser {
 
@@ -27,7 +28,8 @@ object CliParser {
     format: String = "%k => %v",
     predicate: Option[Predicate] = None,
     number: Option[Int] = None,
-    skip: Option[Int] = None
+    skip: Option[Int] = None,
+    timeout: Option[FiniteDuration] = None
   )
 
   val deserializerMap = Map(
@@ -73,7 +75,26 @@ object CliParser {
     .withDefault("%k => %v")
 
   val predicate = Opts
-    .option[String]("predicate", "Predicate to filter records", "p")
+    .option[String](
+      "predicate",
+      """Predicate to filter records. You can use the following operators: ==, !=, ||, &&
+        | Then you can use value/key field names and constants:
+        | * value.field to extract a field from the value of the event
+        | * key.field to extract a field from the key of the event
+        | * topic
+        | * partition
+        | * offset
+        | * "some string" to use a string constant
+        | * 123.45 to use a number constant
+        |Here are some examples:
+        | * "value.id == 12"
+        | * "key.id == 12"
+        | * "value.sub.subage == 15"
+        | * "value.sub.subname == 'subname' || key.id == 12"
+        | * "topic == 'some topic' && value.id == 12"
+        |""".stripMargin,
+      "p"
+    )
     .mapValidated(s =>
       fastparse.parse(s, PredicateParser.predicate(_)) match {
         case Parsed.Success(p, _) => Validated.valid(p)
@@ -90,6 +111,8 @@ object CliParser {
     .option[Int]("skip", "Skip N records and quit", "s", "N")
     .orNone
 
+  val timeout = Opts.option[Int]("timeout", "Timeout after N seconds", metavar = "N").map(_.seconds).orNone
+
   val parse: Opts[CliArgument] =
     (
       topic,
@@ -103,7 +126,8 @@ object CliParser {
       format,
       predicate,
       number,
-      skip
+      skip,
+      timeout
     )
       .mapN(CliArgument.apply)
 

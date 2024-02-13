@@ -6,7 +6,7 @@ object Dependencies {
     lazy val catsEffect                 = "3.5.3"
     lazy val catsEffectTestingScalatest = "1.5.0"
     lazy val decline                    = "2.4.1"
-    lazy val fs2                        = "3.9.3"
+    lazy val fs2                        = "3.9.4"
     lazy val fs2Kafka                   = "3.2.0"
     lazy val scalatest                  = "3.2.17"
     lazy val confluent                  = "7.5.1"
