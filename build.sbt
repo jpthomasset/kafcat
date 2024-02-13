@@ -29,5 +29,6 @@ lazy val root = (project in file("."))
       "-deprecation",
       "-Werror",
       "-unchecked"
-    )
+    ),
+    Universal / javaOptions += "--" // Make sure all arguments are passed to the app and not the launching script
   )

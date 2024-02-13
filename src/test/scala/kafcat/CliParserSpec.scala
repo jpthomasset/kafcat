@@ -1,5 +1,7 @@
 package kafcat
 
+import scala.concurrent.duration._
+
 import com.monovore.decline.Command
 import kafcat.CliParser.CliArgument
 import org.scalatest.matchers.should.Matchers
@@ -57,6 +59,35 @@ class CliParserSpec extends AnyWordSpec with Matchers {
       val expected = Right(CliArgument("some-topic", format = format))
       testParser.parse(List("--format", format, "some-topic")) should be(expected)
       testParser.parse(List("-f", format, "some-topic")) should be(expected)
+    }
+
+    "parse predicate option" in {
+      val predicateString = "field.id == 13"
+      val predicate       = IsEqual(Field(List("field", "id")), NumberConstant(13))
+      val expected        = Right(CliArgument("some-topic", predicate = Some(predicate)))
+
+      testParser.parse(List("--predicate", predicateString, "some-topic")) should be(expected)
+      testParser.parse(List("-p", predicateString, "some-topic")) should be(expected)
+    }
+
+    "parse number option" in {
+      val expected = Right(CliArgument("some-topic", number = Some(10)))
+
+      testParser.parse(List("--number", "10", "some-topic")) should be(expected)
+      testParser.parse(List("-n", "10", "some-topic")) should be(expected)
+    }
+
+    "parse skip option" in {
+      val expected = Right(CliArgument("some-topic", skip = Some(10)))
+
+      testParser.parse(List("--skip", "10", "some-topic")) should be(expected)
+      testParser.parse(List("-s", "10", "some-topic")) should be(expected)
+    }
+
+    "parse timeout option" in {
+      val expected = Right(CliArgument("some-topic", timeout = Some(10.seconds)))
+
+      testParser.parse(List("--timeout", "10", "some-topic")) should be(expected)
     }
   }
 }

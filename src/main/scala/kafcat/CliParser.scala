@@ -1,7 +1,11 @@
 package kafcat
 
+import scala.concurrent.duration._
+
+import cats.data.{NonEmptyList, Validated}
 import cats.implicits._
 import com.monovore.decline._
+import fastparse._
 
 object CliParser {
 
@@ -21,7 +25,11 @@ object CliParser {
     registry: String = "localhost:9090",
     keyDeserializer: DeserializerType = DeserializerType.String,
     valueDeserializer: DeserializerType = DeserializerType.String,
-    format: String = "%k => %v"
+    format: String = "%k => %v",
+    predicate: Option[Predicate] = None,
+    number: Option[Int] = None,
+    skip: Option[Int] = None,
+    timeout: Option[FiniteDuration] = None
   )
 
   val deserializerMap = Map(
@@ -41,9 +49,9 @@ object CliParser {
   val topic             = Opts.argument[String]("topic")
   val abortOnFailure    = Opts.flag("abort", "Abort on failure", "a").orFalse
   val quiet             = Opts.flag("quiet", "Do not output failures to stderr", "q").orFalse
-  val broker            = Opts.option[String]("broker", "Broker address and port", "b").withDefault("localhost:9092")
+  val broker            = Opts.option[String]("broker", "Broker address and port", "b", "url").withDefault("localhost:9092")
   val groupId           = Opts.option[String]("groupid", "Consumer Group ID", "g").withDefault("kafcat")
-  val registry          = Opts.option[String]("registry", "Registry URL", "r").withDefault("localhost:9090")
+  val registry          = Opts.option[String]("registry", "Registry URL", "r", "url").withDefault("localhost:9090")
   val keyDeserializer   = Opts
     .option[DeserializerType]("key-deserializer", s"Key deserializer. Default is string. $deserialierNames", "k")
     .withDefault(DeserializerType.String)
@@ -66,8 +74,61 @@ object CliParser {
     )
     .withDefault("%k => %v")
 
+  val predicate = Opts
+    .option[String](
+      "predicate",
+      """Predicate to filter records. You can use the following operators: ==, !=, ||, &&
+        | Then you can use value/key field names and constants:
+        | * value.field to extract a field from the value of the event
+        | * key.field to extract a field from the key of the event
+        | * topic
+        | * partition
+        | * offset
+        | * "some string" to use a string constant
+        | * 123.45 to use a number constant
+        |Here are some examples:
+        | * "value.id == 12"
+        | * "key.id == 12"
+        | * "value.sub.subage == 15"
+        | * "value.sub.subname == 'subname' || key.id == 12"
+        | * "topic == 'some topic' && value.id == 12"
+        |""".stripMargin,
+      "p"
+    )
+    .mapValidated(s =>
+      fastparse.parse(s, PredicateParser.predicate(_)) match {
+        case Parsed.Success(p, _) => Validated.valid(p)
+        case f: Parsed.Failure    => Validated.invalid(NonEmptyList.of(f.msg))
+      }
+    )
+    .orNone
+
+  val number = Opts
+    .option[Int]("number", "Take N records and quit", "n", "N")
+    .orNone
+
+  val skip = Opts
+    .option[Int]("skip", "Skip N records and quit", "s", "N")
+    .orNone
+
+  val timeout = Opts.option[Int]("timeout", "Timeout after N seconds", metavar = "N").map(_.seconds).orNone
+
   val parse: Opts[CliArgument] =
-    (topic, abortOnFailure, quiet, broker, groupId, registry, keyDeserializer, valueDeserializer, format)
+    (
+      topic,
+      abortOnFailure,
+      quiet,
+      broker,
+      groupId,
+      registry,
+      keyDeserializer,
+      valueDeserializer,
+      format,
+      predicate,
+      number,
+      skip,
+      timeout
+    )
       .mapN(CliArgument.apply)
 
 }

@@ -18,20 +18,20 @@ Options and flags:
         Abort on failure
     --quiet, -q
         Do not output failures to stderr
-    --broker <string>, -b <string>
+    --broker <url>, -b <url>
         Broker address and port
     --groupid <string>, -g <string>
         Consumer Group ID
-    --registry <string>, -r <string>
+    --registry <url>, -r <url>
         Registry URL
     --key-deserializer <Deserializer>, -k <Deserializer>
-        Key deserializer. Default is string. One of:
+        Key deserializer. Default is string. One of: 
          * string
          * long
          * avro
          * raw
     --value-deserializer <Deserializer>, -v <Deserializer>
-        Value deserializer. Default is string. One of:
+        Value deserializer. Default is string. One of: 
          * string
          * long
          * avro
@@ -45,4 +45,26 @@ Options and flags:
          * %o Offset
          * %d Timestamp
          * %h Headers
+    --predicate <string>, -p <string>
+        Predicate to filter records. You can use the following operators: ==, !=, ||, &&
+         Then you can use value/key field names and constants:
+         * value.field to extract a field from the value of the event
+         * key.field to extract a field from the key of the event
+         * topic
+         * partition
+         * offset
+         * "some string" to use a string constant
+         * 123.45 to use a number constant
+        Here are some examples:
+         * "value.id == 12"
+         * "key.id == 12"
+         * "value.sub.subage == 15"
+         * "value.sub.subname == 'subname' || key.id == 12"
+         * "topic == 'some topic' && value.id == 12"
+    --number <N>, -n <N>
+        Take N records and quit
+    --skip <N>, -s <N>
+        Skip N records and quit
+    --timeout <N>
+        Timeout after N seconds when not receiving events
 ```
