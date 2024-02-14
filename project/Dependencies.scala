@@ -30,6 +30,7 @@ object Dependencies {
 
   lazy val testLibraries: Seq[ModuleID] = Seq(
     "org.scalatest"      %% "scalatest"                     % Versions.scalatest                  % Test,
+    "org.typelevel"      %% "cats-effect-testkit"           % Versions.catsEffect                 % Test,
     "org.typelevel"      %% "cats-effect-testing-scalatest" % Versions.catsEffectTestingScalatest % Test,
     "com.sksamuel.avro4s" % "avro4s-core_3"                 % Versions.avro4s                     % Test // Only to generate avro schema and record
   )

@@ -65,6 +65,8 @@ Options and flags:
         Take N records and quit
     --skip <N>, -s <N>
         Skip N records and quit
+    --skip-null
+        Skip records with null values
     --timeout <N>
         Timeout after N seconds when not receiving events
 ```

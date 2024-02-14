@@ -84,6 +84,12 @@ class CliParserSpec extends AnyWordSpec with Matchers {
       testParser.parse(List("-s", "10", "some-topic")) should be(expected)
     }
 
+    "parse skip null flag" in {
+      val expected = Right(CliArgument("some-topic", skipNullValues = true))
+
+      testParser.parse(List("--skip-null", "some-topic")) should be(expected)
+    }
+
     "parse timeout option" in {
       val expected = Right(CliArgument("some-topic", timeout = Some(10.seconds)))
 

@@ -8,6 +8,7 @@ import cats.effect.kernel.Clock
 import fs2.{Pipe, Stream, text}
 import fs2.io.file.{Files, Path}
 import fs2.timeseries.TimeStamped
+import fs2.kafka.CommittableConsumerRecord
 
 object Fs2Pipes {
 
@@ -87,6 +88,12 @@ object Fs2Pipes {
     skip match
       case Some(n) => s.drop(n)
       case _       => s
+
+  def skipNullValues[K, V](
+    skip: Boolean
+  ): Pipe[IO, CommittableConsumerRecord[IO, K, V], CommittableConsumerRecord[IO, K, V]] = s =>
+    if skip then s.filter(_.record.value != null)
+    else s
 
   /**
    * Timeout when no more event after some time
