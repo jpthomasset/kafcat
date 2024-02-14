@@ -68,6 +68,7 @@ object App
       .subscribeTo(cliArgs.topic)
       .records
       .through(Fs2Pipes.timeoutWhenNoEvent(cliArgs.timeout))
+      .through(Fs2Pipes.skipNullValues(cliArgs.skipNullValues))
       .filter(cr => cliArgs.predicate.map(_.eval(cr.record)).getOrElse(true))
       .through(Fs2Pipes.take(cliArgs.number))
       .foreach(cr => IO.println(RecordFormater.format(cr.record, cliArgs.format)(showK, showV)))

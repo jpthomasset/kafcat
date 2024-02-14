@@ -1,10 +1,14 @@
 package kafcat
 
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 import cats.effect._
 import cats.effect.testing.scalatest.AsyncIOSpec
+import cats.effect.testkit._
 import fs2._
+import fs2.kafka.{CommittableConsumerRecord, ConsumerRecord}
+import kafcat.Fs2Pipes.NoMoreEventException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
 
@@ -86,6 +90,55 @@ class Fs2PipesSpec extends AsyncWordSpec with AsyncIOSpec with Matchers {
         .count
         .asserting(_ shouldBe 6)
 
+    }
+
+    "skip null values" in {
+
+      val cr1 = ConsumerRecord("topic", 0, 0, 1, "some event")
+      val cr2 = ConsumerRecord("topic", 0, 0, 2, null)
+      val cr3 = ConsumerRecord("topic", 0, 0, 3, "some event")
+
+      Stream(cr1, cr2, cr3)
+        .map(CommittableConsumerRecord(_, null))
+        .through(Fs2Pipes.skipNullValues(true))
+        .compile
+        .count
+        .asserting(_ shouldBe 2)
+
+    }
+
+    "keep null values" in {
+
+      val cr1 = ConsumerRecord("topic", 0, 0, 1, "some event")
+      val cr2 = ConsumerRecord("topic", 0, 0, 2, null)
+      val cr3 = ConsumerRecord("topic", 0, 0, 3, "some event")
+
+      Stream(cr1, cr2, cr3)
+        .map(CommittableConsumerRecord(_, null))
+        .through(Fs2Pipes.skipNullValues(false))
+        .compile
+        .count
+        .asserting(_ shouldBe 3)
+
+    }
+
+    "timeout when no events" in {
+      val input = List(1, 1, 1, 1, 6, 1, 1, 1)
+
+      // Create a stream that sleeps incrementally more time
+      val stream = Stream
+        .emits(input)
+        .covary[IO]
+        .evalMap(i => IO.sleep(i.second) *> IO.pure(s"content$i"))
+        .through(Fs2Pipes.timeoutWhenNoEvent(Some(5.seconds)))
+        // Handle error by closing the stream
+        .handleErrorWith { case NoMoreEventException(_) => Stream.empty }
+        .compile
+        .count
+
+      TestControl
+        .executeEmbed(stream)
+        .asserting(_ shouldBe 4)
     }
   }
 }

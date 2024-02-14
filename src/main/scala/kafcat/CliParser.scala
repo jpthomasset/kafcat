@@ -29,6 +29,7 @@ object CliParser {
     predicate: Option[Predicate] = None,
     number: Option[Int] = None,
     skip: Option[Int] = None,
+    skipNullValues: Boolean = false,
     timeout: Option[FiniteDuration] = None
   )
 
@@ -111,6 +112,8 @@ object CliParser {
     .option[Int]("skip", "Skip N records and quit", "s", "N")
     .orNone
 
+  val skipNullValues = Opts.flag("skip-null", "Skip records with null values").orFalse
+
   val timeout = Opts.option[Int]("timeout", "Timeout after N seconds", metavar = "N").map(_.seconds).orNone
 
   val parse: Opts[CliArgument] =
@@ -127,6 +130,7 @@ object CliParser {
       predicate,
       number,
       skip,
+      skipNullValues,
       timeout
     )
       .mapN(CliArgument.apply)
