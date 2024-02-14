@@ -7,8 +7,8 @@ import cats.effect.IO
 import cats.effect.kernel.Clock
 import fs2.{Pipe, Stream, text}
 import fs2.io.file.{Files, Path}
-import fs2.timeseries.TimeStamped
 import fs2.kafka.CommittableConsumerRecord
+import fs2.timeseries.TimeStamped
 
 object Fs2Pipes {
 

@@ -1,17 +1,16 @@
 package kafcat
 
+import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 import cats.effect._
 import cats.effect.testing.scalatest.AsyncIOSpec
+import cats.effect.testkit._
 import fs2._
+import fs2.kafka.{CommittableConsumerRecord, ConsumerRecord}
+import kafcat.Fs2Pipes.NoMoreEventException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AsyncWordSpec
-import fs2.kafka.CommittableConsumerRecord
-import fs2.kafka.ConsumerRecord
-import cats.effect.testkit._
-import scala.concurrent.duration._
-import kafcat.Fs2Pipes.NoMoreEventException
 
 class Fs2PipesSpec extends AsyncWordSpec with AsyncIOSpec with Matchers {
   "Fs2Pipes" should {
