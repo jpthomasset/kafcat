@@ -124,7 +124,7 @@ class Fs2PipesSpec extends AsyncWordSpec with AsyncIOSpec with Matchers {
     }
 
     "timeout when no events" in {
-      val input = (1 to 10).toList
+      val input = List(1, 1, 1, 1, 6, 1, 1, 1)
 
       // Create a stream that sleeps incrementally more time
       val stream = Stream
