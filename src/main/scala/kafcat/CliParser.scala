@@ -119,11 +119,15 @@ object CliParser {
   val timeout = Opts.option[Int]("timeout", "Timeout after N seconds", metavar = "N").map(_.seconds).orNone
 
   val offsetReset = Opts
-    .option[String]("offset-reset", "Offset reset strategy", metavar = "strategy")
+    .option[String](
+      "offset-reset",
+      "Offset reset strategy. One of earliest or latest. Default to latest",
+      metavar = "strategy"
+    )
     .mapValidated(_.toLowerCase() match {
       case "earliest" => Validated.valid(AutoOffsetReset.Earliest)
       case "latest"   => Validated.valid(AutoOffsetReset.Latest)
-      case _          => Validated.invalid(NonEmptyList.of("Invalid offset reset strategy"))
+      case _          => Validated.invalid(NonEmptyList.of("Invalid offset reset strategy."))
     })
     .withDefault(AutoOffsetReset.Latest)
 
