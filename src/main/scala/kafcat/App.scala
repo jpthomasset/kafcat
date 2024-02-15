@@ -37,21 +37,11 @@ object App
     bootstrapServer: String,
     groupId: String,
     keydes: KeyDeserializer[IO, K],
-    valuedes: ValueDeserializer[IO, V]
+    valuedes: ValueDeserializer[IO, V],
+    offsetReset: AutoOffsetReset
   ) =
     ConsumerSettings(keydes, valuedes)
-      .withAutoOffsetReset(AutoOffsetReset.Earliest)
-      .withBootstrapServers(bootstrapServer)
-      .withGroupId(groupId)
-
-  def consumerSettings[K, V](
-    bootstrapServer: String,
-    groupId: String,
-    keydes: KeyDeserializer[IO, K],
-    valuedes: ValueDeserializer[IO, V]
-  ) =
-    ConsumerSettings(keydes, valuedes)
-      .withAutoOffsetReset(AutoOffsetReset.Earliest)
+      .withAutoOffsetReset(offsetReset)
       .withBootstrapServers(bootstrapServer)
       .withGroupId(groupId)
 
@@ -64,7 +54,7 @@ object App
     val showV = getShow(v)
 
     KafkaConsumer
-      .stream(customSettings(cliArgs.broker, cliArgs.groupId, k.build, v.build))
+      .stream(customSettings(cliArgs.broker, cliArgs.groupId, k.build, v.build, cliArgs.offsetReset))
       .subscribeTo(cliArgs.topic)
       .records
       .through(Fs2Pipes.timeoutWhenNoEvent(cliArgs.timeout))

@@ -69,4 +69,6 @@ Options and flags:
         Skip records with null values
     --timeout <N>
         Timeout after N seconds when not receiving events
+    --offset-reset <strategy>
+        Offset reset strategy. One of earliest or latest. Default to latest
 ```
