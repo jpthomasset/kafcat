@@ -6,6 +6,7 @@ import cats.data.{NonEmptyList, Validated}
 import cats.implicits._
 import com.monovore.decline._
 import fastparse._
+import fs2.kafka.AutoOffsetReset
 
 object CliParser {
 
@@ -30,7 +31,8 @@ object CliParser {
     number: Option[Int] = None,
     skip: Option[Int] = None,
     skipNullValues: Boolean = false,
-    timeout: Option[FiniteDuration] = None
+    timeout: Option[FiniteDuration] = None,
+    offsetReset: AutoOffsetReset = AutoOffsetReset.Latest
   )
 
   val deserializerMap = Map(
@@ -116,6 +118,15 @@ object CliParser {
 
   val timeout = Opts.option[Int]("timeout", "Timeout after N seconds", metavar = "N").map(_.seconds).orNone
 
+  val offsetReset = Opts
+    .option[String]("offset-reset", "Offset reset strategy", metavar = "strategy")
+    .mapValidated(_.toLowerCase() match {
+      case "earliest" => Validated.valid(AutoOffsetReset.Earliest)
+      case "latest"   => Validated.valid(AutoOffsetReset.Latest)
+      case _          => Validated.invalid(NonEmptyList.of("Invalid offset reset strategy"))
+    })
+    .withDefault(AutoOffsetReset.Latest)
+
   val parse: Opts[CliArgument] =
     (
       topic,
@@ -131,7 +142,8 @@ object CliParser {
       number,
       skip,
       skipNullValues,
-      timeout
+      timeout,
+      offsetReset
     )
       .mapN(CliArgument.apply)
 
