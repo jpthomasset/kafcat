@@ -8,10 +8,12 @@ ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 lazy val root = (project in file("."))
-  .enablePlugins(BuildInfoPlugin, JavaAppPackaging)
+  .enablePlugins(BuildInfoPlugin, JavaAppPackaging, DockerPlugin)
   .settings(
     name                 := "kafcat",
     maintainer           := "jpthomasset@gmail.com",
+    dockerBaseImage      := "openjdk:17",
+    dockerRepository     := Some("jpthomasset"),
     libraryDependencies ++= Dependencies.libraries ++ Dependencies.testLibraries,
     buildInfoKeys        := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage     := "kafcat",
