@@ -1,5 +1,7 @@
 package kafcat
 
+import java.time.Instant
+
 import scala.concurrent.duration._
 
 import com.monovore.decline.Command
@@ -94,6 +96,12 @@ class CliParserSpec extends AnyWordSpec with Matchers {
       val expected = Right(CliArgument("some-topic", timeout = Some(10.seconds)))
 
       testParser.parse(List("--timeout", "10", "some-topic")) should be(expected)
+    }
+
+    "parse since option" in {
+      val expected = Right(CliArgument("some-topic", since = Some(Instant.parse("2024-02-15T08:05:20.341Z"))))
+
+      testParser.parse(List("--since", "2024-02-15T08:05:20.341Z", "some-topic")) should be(expected)
     }
   }
 }
