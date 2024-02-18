@@ -1,13 +1,17 @@
 package kafcat
 
+import java.time.Instant
+
 import cats.Show
 import cats.effect.{ExitCode, IO}
 import cats.effect.std.Console
+import cats.implicits._
 import com.monovore.decline.Opts
 import com.monovore.decline.effect.CommandIOApp
 import fs2.kafka._
 import kafcat.CliParser.DeserializerType
 import kafcat.Fs2Pipes.NoMoreEventException
+import org.apache.kafka.common.TopicPartition
 
 object App
     extends CommandIOApp(
@@ -35,7 +39,6 @@ object App
 
   def customSettings[K, V](
     bootstrapServer: String,
-    groupId: String,
     keydes: KeyDeserializer[IO, K],
     valuedes: ValueDeserializer[IO, V],
     offsetReset: AutoOffsetReset
@@ -43,7 +46,27 @@ object App
     ConsumerSettings(keydes, valuedes)
       .withAutoOffsetReset(offsetReset)
       .withBootstrapServers(bootstrapServer)
-      .withGroupId(groupId)
+
+  def seekOffset(topic: String, since: Option[Instant], consumer: KafkaConsumer[IO, _, _]): IO[Unit] =
+    since match {
+      case Some(instant) =>
+        val timestamp = instant.toEpochMilli
+
+        for {
+          _               <- consumer.assign(topic)
+          partitions      <- consumer.partitionsFor(topic)
+          partitionsWithTs = partitions.map(p => TopicPartition(p.topic(), p.partition()) -> timestamp).toMap
+          offsets         <- consumer.offsetsForTimes(partitionsWithTs)
+          seekPositions    = offsets.flatMap {
+                               case (tp, Some(offset)) => List(tp -> offset)
+                               case _                  => None
+                             }
+          _               <- seekPositions.toList.traverse((tp, offset) => consumer.seek(tp, offset.offset()))
+
+        } yield ()
+
+      case None => consumer.subscribeTo(topic)
+    }
 
   def consumeToStdout(cliArgs: CliParser.CliArgument): IO[Unit] = {
 
@@ -54,8 +77,8 @@ object App
     val showV = getShow(v)
 
     KafkaConsumer
-      .stream(customSettings(cliArgs.broker, cliArgs.groupId, k.build, v.build, cliArgs.offsetReset))
-      .subscribeTo(cliArgs.topic)
+      .stream(customSettings(cliArgs.broker, k.build, v.build, cliArgs.offsetReset))
+      .evalTap(seekOffset(cliArgs.topic, cliArgs.since, _))
       .records
       .through(Fs2Pipes.timeoutWhenNoEvent(cliArgs.timeout))
       .through(Fs2Pipes.skipNullValues(cliArgs.skipNullValues))

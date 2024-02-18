@@ -1,10 +1,13 @@
 package kafcat
 
+import java.time.Instant
+
 import scala.concurrent.duration._
 
 import cats.data.{NonEmptyList, Validated}
 import cats.implicits._
 import com.monovore.decline._
+import com.monovore.decline.time._
 import fastparse._
 import fs2.kafka.AutoOffsetReset
 
@@ -22,7 +25,6 @@ object CliParser {
     abortOnFailure: Boolean = false,
     quiet: Boolean = false,
     broker: String = "localhost:9092",
-    groupId: String = "kafcat",
     registry: String = "localhost:9090",
     keyDeserializer: DeserializerType = DeserializerType.String,
     valueDeserializer: DeserializerType = DeserializerType.String,
@@ -32,7 +34,8 @@ object CliParser {
     skip: Option[Int] = None,
     skipNullValues: Boolean = false,
     timeout: Option[FiniteDuration] = None,
-    offsetReset: AutoOffsetReset = AutoOffsetReset.Latest
+    offsetReset: AutoOffsetReset = AutoOffsetReset.Latest,
+    since: Option[Instant] = None
   )
 
   val deserializerMap = Map(
@@ -53,7 +56,6 @@ object CliParser {
   val abortOnFailure    = Opts.flag("abort", "Abort on failure", "a").orFalse
   val quiet             = Opts.flag("quiet", "Do not output failures to stderr", "q").orFalse
   val broker            = Opts.option[String]("broker", "Broker address and port", "b", "url").withDefault("localhost:9092")
-  val groupId           = Opts.option[String]("groupid", "Consumer Group ID", "g").withDefault("kafcat")
   val registry          = Opts.option[String]("registry", "Registry URL", "r", "url").withDefault("localhost:9090")
   val keyDeserializer   = Opts
     .option[DeserializerType]("key-deserializer", s"Key deserializer. Default is string. $deserialierNames", "k")
@@ -131,13 +133,14 @@ object CliParser {
     })
     .withDefault(AutoOffsetReset.Latest)
 
+  val since = Opts.option[Instant]("since", "Start consuming from this timestamp (ISO Format)").orNone
+
   val parse: Opts[CliArgument] =
     (
       topic,
       abortOnFailure,
       quiet,
       broker,
-      groupId,
       registry,
       keyDeserializer,
       valueDeserializer,
@@ -147,7 +150,8 @@ object CliParser {
       skip,
       skipNullValues,
       timeout,
-      offsetReset
+      offsetReset,
+      since
     )
       .mapN(CliArgument.apply)
 
