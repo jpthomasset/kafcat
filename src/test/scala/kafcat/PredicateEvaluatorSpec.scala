@@ -51,6 +51,13 @@ class PredicateEvaluatorSpec extends AnyWordSpec with Matchers {
         predicate.eval(cr) should be(true)
       }
 
+      "evaluate equality with non existent value field" in {
+        val evt       = simpleEventToRecord.to(TestSimpleEvent(12, "some name"))
+        val cr        = ConsumerRecord("topic", 0, 0, 12, evt)
+        val predicate = IsEqual(Field(List("value", "toto")), NumberConstant(12))
+        predicate.eval(cr) should be(false)
+      }
+
       "evaluate equality with enum field" in {
         val evt       = simpleEventToRecord.to(TestSimpleEvent(12, "some name", TestEnum.Two))
         val cr        = ConsumerRecord("topic", 0, 0, 12, evt)

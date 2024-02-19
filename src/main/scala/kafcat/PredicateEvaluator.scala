@@ -1,5 +1,7 @@
 package kafcat
 
+import scala.util.Try
+
 import fs2.kafka.ConsumerRecord
 import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.avro.util.Utf8
@@ -36,7 +38,7 @@ extension (p: Predicate) {
     if (record.isInstanceOf[GenericRecord]) {
       val value = path.foldLeft[Option[Any]](Some(record)) { (r, f) =>
         r.flatMap {
-          case r: GenericRecord => Option(r.get(f))
+          case r: GenericRecord => Try(r.get(f)).toOption
           case _                => None
         }
       }
