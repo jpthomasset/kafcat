@@ -21,11 +21,11 @@ lazy val root = (project in file("."))
     buildInfoPackage          := "kafcat",
     git.useGitDescribe        := true,
     git.gitTagToVersionNumber := {
-      case VersionRegex(major, minor, _, _) =>
-        Some(s"$major.${minor.toInt + 1}.0")
+      case VersionRegex(major, minor, patch, "") =>
+        Some(s"$major.$minor.$patch")
 
-      // case VersionRegex(major, minor, patch, _) =>
-      //   Some(s"$major.$minor.$patch")
+      case VersionRegex(major, minor, patch, _) =>
+        Some(s"$major.${minor.toInt + 1}.0")
 
       case _ => None
     },
