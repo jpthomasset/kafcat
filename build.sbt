@@ -22,10 +22,10 @@ lazy val root = (project in file("."))
     git.useGitDescribe        := true,
     git.gitTagToVersionNumber := {
       case VersionRegex(major, minor, patch, "") =>
-        Some(s"$major.$minor.$patch")
+        Some(s"$major.$minor.$patch-nosuffix")
 
-      case VersionRegex(major, minor, patch, _) =>
-        Some(s"$major.${minor.toInt + 1}.0")
+      case VersionRegex(major, minor, patch, x) =>
+        Some(s"$major.${minor.toInt + 1}.0-suffix--$x--")
 
       case _ => None
     },
