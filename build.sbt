@@ -20,12 +20,13 @@ lazy val root = (project in file("."))
     buildInfoKeys             := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage          := "kafcat",
     git.useGitDescribe        := true,
+    git.uncommittedSignifier  := Some("dirty"),
     git.gitTagToVersionNumber := {
       case VersionRegex(major, minor, patch, "") =>
-        Some(s"$major.$minor.$patch-nosuffix")
+        Some(s"$major.$minor.$patch")
 
       case VersionRegex(major, minor, patch, x) =>
-        Some(s"$major.${minor.toInt + 1}.0-suffix--$x--")
+        Some(s"$major.${minor.toInt + 1}.0-SNAPSHOT")
 
       case _ => None
     },
