@@ -25,7 +25,7 @@ lazy val root = (project in file("."))
       case VersionRegex(major, minor, patch, "") =>
         Some(s"$major.$minor.$patch")
 
-      case VersionRegex(major, minor, patch, x) =>
+      case VersionRegex(major, minor, patch, _) =>
         Some(s"$major.${minor.toInt + 1}.0-SNAPSHOT")
 
       case _ => None
