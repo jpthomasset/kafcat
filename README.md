@@ -1,11 +1,21 @@
+![Build](https://github.com/jpthomasset/kafcat/actions/workflows/scala.yml/badge.svg) - ![Docker image](https://img.shields.io/docker/v/jpthomasset/kafcat)
+
 # Kafcat
 
-Small utility to subscribe to kafka topic and print events to stdout
+Small utility to subscribe to kafka topic and print events to stdout.
 
 # Usage
 
+You can either run locally or from a docker image:
+
 ```
-Usage: kafcat [--abort] [--quiet] [--broker <string>] [--groupid <string>] [--registry <string>] [--key-deserializer <Deserializer>] [--value-deserializer <Deserializer>] [--format <string>] <topic>
+docker run --rm docker.io/jpthomasset/kafcat:latest -b broker-url:9092 my-topic
+```
+
+## Command line options
+
+```
+Usage: kafcat [--abort] [--quiet] [--broker <url>] [--registry <url>] [--key-deserializer <Deserializer>] [--value-deserializer <Deserializer>] [--format <string>] [--predicate <string>] [--number <N>] [--skip <N>] [--skip-null] [--timeout <N>] [--offset-reset <strategy>] [--since <iso-date-time>] <topic>
 
 Consume events from a Kafka topic and print them to stdout
 
@@ -20,18 +30,16 @@ Options and flags:
         Do not output failures to stderr
     --broker <url>, -b <url>
         Broker address and port
-    --groupid <string>, -g <string>
-        Consumer Group ID
     --registry <url>, -r <url>
         Registry URL
     --key-deserializer <Deserializer>, -k <Deserializer>
-        Key deserializer. Default is string. One of: 
+        Key deserializer. Default is string. One of:
          * string
          * long
          * avro
          * raw
     --value-deserializer <Deserializer>, -v <Deserializer>
-        Value deserializer. Default is string. One of: 
+        Value deserializer. Default is string. One of:
          * string
          * long
          * avro
@@ -68,7 +76,9 @@ Options and flags:
     --skip-null
         Skip records with null values
     --timeout <N>
-        Timeout after N seconds when not receiving events
+        Timeout after N seconds
     --offset-reset <strategy>
         Offset reset strategy. One of earliest or latest. Default to latest
+    --since <iso-date-time>
+        Start consuming from this timestamp (ISO Format)
 ```

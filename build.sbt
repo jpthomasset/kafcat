@@ -16,6 +16,7 @@ lazy val root = (project in file("."))
     maintainer                := "jpthomasset@gmail.com",
     dockerBaseImage           := "openjdk:17",
     dockerRepository          := Some("jpthomasset"),
+    dockerUpdateLatest        := true,
     libraryDependencies ++= Dependencies.libraries ++ Dependencies.testLibraries,
     buildInfoKeys             := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage          := "kafcat",
