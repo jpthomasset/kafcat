@@ -7,7 +7,7 @@ ThisBuild / organizationName  := "Jean-Pierre Thomasset"
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
-val VersionRegex = """([0-9]+)\.([0-9]+)\.[0-9]+.*""".r
+val VersionRegex = """([0-9]+)\.([0-9]+)\.([0-9]+)(.*)""".r
 
 lazy val root = (project in file("."))
   .enablePlugins(BuildInfoPlugin, JavaAppPackaging, DockerPlugin, GitVersioning)
@@ -20,9 +20,13 @@ lazy val root = (project in file("."))
     buildInfoKeys             := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
     buildInfoPackage          := "kafcat",
     git.useGitDescribe        := true,
+    git.uncommittedSignifier  := Some("dirty"),
     git.gitTagToVersionNumber := {
-      case VersionRegex(major, minor) =>
-        Some(s"$major.${minor.toInt + 1}.0")
+      case VersionRegex(major, minor, patch, "") =>
+        Some(s"$major.$minor.$patch")
+
+      case VersionRegex(major, minor, patch, _) =>
+        Some(s"$major.${minor.toInt + 1}.0-SNAPSHOT")
 
       case _ => None
     },
