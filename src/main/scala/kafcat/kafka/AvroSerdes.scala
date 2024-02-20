@@ -1,4 +1,4 @@
-package kafcat
+package kafcat.kafka
 
 import scala.jdk.CollectionConverters.*
 

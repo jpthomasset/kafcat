@@ -1,4 +1,4 @@
-package kafcat
+package kafcat.kafka
 
 import cats.effect.IO
 import fs2.kafka.Deserializer
@@ -7,11 +7,38 @@ import org.apache.kafka.common.serialization.{
   Deserializer => KafkaDeserializer,
   LongDeserializer => KafkaLongDeserializer
 }
+import cats.Show
+
+enum DeserializerType {
+  case String
+  case Long
+  case Avro
+  case Raw
+}
 
 trait DeserializerTag {
   type Type
 
   def build: Deserializer[IO, Type]
+}
+
+object DeserializerTag {
+  def getDeserializerTag(arg: DeserializerType, schemaRegistryUrl: String): DeserializerTag =
+    arg match {
+      case DeserializerType.String => StringDeserializer
+      case DeserializerType.Long   => LongDeserializer
+      case DeserializerType.Avro   => AvroDeserializer(schemaRegistryUrl)
+      case DeserializerType.Raw    => RawDeserializer
+    }
+
+  def getShow(tag: DeserializerTag): Show[tag.Type] = tag match {
+    case RawDeserializer =>
+      Show
+        .show[RawDeserializer.Type](xs => s"Array(${xs.map("0x%02x".format(_)).mkString(", ")})")
+        .asInstanceOf[Show[tag.Type]]
+
+    case _ => Show.fromToString[tag.Type]
+  }
 }
 
 object StringDeserializer extends DeserializerTag {

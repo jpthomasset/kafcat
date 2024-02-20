@@ -1,4 +1,4 @@
-package kafcat
+package kafcat.predicate
 
 import com.sksamuel.avro4s.{AvroSchema, ToRecord}
 import fs2.kafka.ConsumerRecord
