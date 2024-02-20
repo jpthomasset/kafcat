@@ -1,5 +1,6 @@
 package kafcat.kafka
 
+import cats.Show
 import cats.effect.IO
 import fs2.kafka.Deserializer
 import org.apache.avro.generic.GenericRecord
@@ -7,7 +8,6 @@ import org.apache.kafka.common.serialization.{
   Deserializer => KafkaDeserializer,
   LongDeserializer => KafkaLongDeserializer
 }
-import cats.Show
 
 enum DeserializerType {
   case String

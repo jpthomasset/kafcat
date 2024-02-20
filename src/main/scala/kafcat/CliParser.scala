@@ -10,8 +10,8 @@ import com.monovore.decline._
 import com.monovore.decline.time._
 import fastparse._
 import fs2.kafka.AutoOffsetReset
-import kafcat.predicate._
 import kafcat.kafka.DeserializerType
+import kafcat.predicate._
 
 object CliParser {
 

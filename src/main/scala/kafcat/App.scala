@@ -7,8 +7,8 @@ import com.monovore.decline.Opts
 import com.monovore.decline.effect.CommandIOApp
 import fs2.kafka._
 import kafcat.Fs2Pipes.NoMoreEventException
-import kafcat.predicate.eval
 import kafcat.kafka._
+import kafcat.predicate.eval
 
 object App
     extends CommandIOApp(

@@ -6,9 +6,9 @@ import scala.concurrent.duration._
 
 import com.monovore.decline.Command
 import kafcat.CliParser.CliArgument
+import kafcat.predicate.{Field, IsEqual, NumberConstant}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import kafcat.predicate.{Field, IsEqual, NumberConstant}
 
 class CliParserSpec extends AnyWordSpec with Matchers {
   "CliParser" should {
