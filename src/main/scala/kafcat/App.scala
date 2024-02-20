@@ -65,7 +65,7 @@ object App
 
         } yield ()
 
-      case None => consumer.subscribeTo(topic)
+      case None => consumer.assign(topic)
     }
 
   def consumeToStdout(cliArgs: CliParser.CliArgument): IO[Unit] = {

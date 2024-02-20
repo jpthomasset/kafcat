@@ -1,4 +1,4 @@
-![Build](https://github.com/jpthomasset/kafcat/actions/workflows/scala.yml/badge.svg) - ![Docker image](https://img.shields.io/docker/v/jpthomasset/kafcat)
+![Build](https://github.com/jpthomasset/kafcat/actions/workflows/scala.yml/badge.svg) ![Docker image](https://img.shields.io/docker/v/jpthomasset/kafcat)
 
 # Kafcat
 
