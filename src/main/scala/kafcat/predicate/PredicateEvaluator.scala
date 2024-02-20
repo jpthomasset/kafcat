@@ -1,4 +1,4 @@
-package kafcat
+package kafcat.predicate
 
 import scala.util.Try
 

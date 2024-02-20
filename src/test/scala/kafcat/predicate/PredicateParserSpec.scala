@@ -1,4 +1,4 @@
-package kafcat
+package kafcat.predicate
 
 import fastparse._
 import org.scalatest.matchers.should.Matchers

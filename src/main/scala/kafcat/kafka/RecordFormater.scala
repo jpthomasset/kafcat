@@ -1,4 +1,4 @@
-package kafcat
+package kafcat.kafka
 
 import cats.Show
 import fs2.kafka._

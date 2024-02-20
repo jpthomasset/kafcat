@@ -1,10 +1,9 @@
-package kafcat
+package kafcat.kafka
 
 import scala.jdk.CollectionConverters.*
 
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient
 import io.confluent.kafka.serializers.{AbstractKafkaSchemaSerDeConfig, KafkaAvroDeserializer}
-import io.confluent.kafka.serializers.subject.RecordNameStrategy
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.Deserializer
 
@@ -12,9 +11,8 @@ object AvroSerdes {
   case class SerdesConfiguration(schemaRegistryUrl: String) {
     def asProps: java.util.Map[String, String] =
       Map[String, String](
-        AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG  -> schemaRegistryUrl,
-        AbstractKafkaSchemaSerDeConfig.AUTO_REGISTER_SCHEMAS       -> "false",
-        AbstractKafkaSchemaSerDeConfig.VALUE_SUBJECT_NAME_STRATEGY -> classOf[RecordNameStrategy].getName()
+        AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG -> schemaRegistryUrl,
+        AbstractKafkaSchemaSerDeConfig.AUTO_REGISTER_SCHEMAS      -> "false"
       ).asJava
 
     // For testing purpose only
