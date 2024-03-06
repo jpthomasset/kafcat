@@ -1,6 +1,4 @@
-package kafcat.output
-
-import kafcat.predicate.{Field, StringConstant}
+package kafcat.format
 
 type FormatElement = StringConstant | Field
 

@@ -1,8 +1,7 @@
-package kafcat.output
+package kafcat.format
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import kafcat.predicate.{Field, StringConstant}
 
 class FormatParserSpec extends AnyWordSpec with Matchers {
   import kafcat.ParserSpecUtils.checkParser
@@ -15,7 +14,21 @@ class FormatParserSpec extends AnyWordSpec with Matchers {
       checkParser(input, FormatParser.formatParser(_), expected)
     }
 
-    "parse field" in {
+    "parse simple field name" in {
+      val input    = "field"
+      val expected = Field(List("field"))
+
+      checkParser(input, FormatParser.field(_), expected)
+    }
+
+    "parse field path" in {
+      val input    = "some.field"
+      val expected = Field(List("some", "field"))
+
+      checkParser(input, FormatParser.field(_), expected)
+    }
+
+    "parse field placeholder" in {
       val input    = "%field"
       val expected = Format(List(Field(List("field"))))
 

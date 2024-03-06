@@ -1,13 +1,8 @@
 package kafcat.predicate
 
+import kafcat.format.Value
+
 sealed trait Predicate
-
-sealed trait Value
-
-case class Field(path: List[String])     extends Value
-sealed trait Constant                    extends Value
-case class StringConstant(value: String) extends Constant
-case class NumberConstant(value: Double) extends Constant
 
 case class IsEqual(left: Value, right: Value)     extends Predicate
 case class IsNotEqual(left: Value, right: Value)  extends Predicate

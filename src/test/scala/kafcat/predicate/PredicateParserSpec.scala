@@ -1,25 +1,12 @@
 package kafcat.predicate
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import kafcat.format._
 
 class PredicateParserSpec extends AnyWordSpec with Matchers {
   import kafcat.ParserSpecUtils.checkParser
 
   "PredicateParser" should {
-    "parse simple field name" in {
-      val input    = "field"
-      val expected = Field(List("field"))
-
-      checkParser(input, PredicateParser.field(_), expected)
-    }
-
-    "parse field path" in {
-      val input    = "some.field"
-      val expected = Field(List("some", "field"))
-
-      checkParser(input, PredicateParser.field(_), expected)
-    }
-
     "parse a double quoted string constant" in {
       val input    = "\"some string\""
       val expected = StringConstant("some string")
