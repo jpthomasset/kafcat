@@ -6,7 +6,8 @@ import scala.concurrent.duration._
 
 import com.monovore.decline.Command
 import kafcat.CliParser.CliArgument
-import kafcat.predicate.{Field, IsEqual, NumberConstant}
+import kafcat.format._
+import kafcat.predicate.IsEqual
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
