@@ -34,13 +34,13 @@ Options and flags:
         Registry URL
     --key-deserializer <Deserializer>, -k <Deserializer>
         Key deserializer. Default is string. One of:
-         * string
+         * string (default)
          * long
          * avro
          * raw
     --value-deserializer <Deserializer>, -v <Deserializer>
         Value deserializer. Default is string. One of:
-         * string
+         * string (default)
          * long
          * avro
          * raw
