@@ -4,6 +4,7 @@ import com.sksamuel.avro4s.{AvroSchema, ToRecord}
 import fs2.kafka.ConsumerRecord
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import kafcat.format._
 
 class PredicateEvaluatorSpec extends AnyWordSpec with Matchers {
 

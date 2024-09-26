@@ -2,12 +2,10 @@ package kafcat.predicate
 
 import fastparse._
 import fastparse.JavaWhitespace._
+import kafcat.format._
 
 object PredicateParser {
-  def fieldName[$: P]: P[String]       = P(CharsWhile(c => c.isLetterOrDigit || c == '_').!)
-  def fieldPath[$: P]: P[List[String]] = P(fieldName ~ ("." ~ fieldPath).?).map(x => x._1 :: x._2.toList.flatten)
-  def field[$: P]: P[Field]            = P(fieldPath.map(Field(_)))
-
+  
   def doubleQuotedStringConstant[$: P]: P[StringConstant] =
     P("\"" ~ CharsWhile(_ != '"').! ~ "\"").map(StringConstant(_))
 
@@ -19,7 +17,7 @@ object PredicateParser {
       .map(_.toDoubleOption)
       .collect { case Some(value) => NumberConstant(value) }
 
-  def value[$: P]: P[Value] = P(doubleQuotedStringConstant | singleQuotedStringConstant | numberConstant | field)
+  def value[$: P]: P[Value] = P(doubleQuotedStringConstant | singleQuotedStringConstant | numberConstant | FormatParser.field)
 
   def isEqual[$: P]: P[IsEqual]       = P(value ~ "==" ~ value).map((left, right) => IsEqual(left, right))
   def isNotEqual[$: P]: P[IsNotEqual] = P(value ~ "!=" ~ value).map((left, right) => IsNotEqual(left, right))

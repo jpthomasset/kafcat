@@ -5,6 +5,7 @@ import scala.util.Try
 import fs2.kafka.ConsumerRecord
 import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.avro.util.Utf8
+import kafcat.format._
 
 extension (p: Predicate) {
   def eval(record: ConsumerRecord[_, _]): Boolean = p match {
