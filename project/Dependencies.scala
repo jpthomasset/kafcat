@@ -3,17 +3,17 @@ import sbt._
 object Dependencies {
 
   object Versions {
-    lazy val catsEffect                 = "3.5.3"
-    lazy val catsEffectTestingScalatest = "1.5.0"
-    lazy val decline                    = "2.4.1"
-    lazy val fs2                        = "3.9.4"
-    lazy val fs2Kafka                   = "3.3.0"
-    lazy val scalatest                  = "3.2.17"
-    lazy val confluent                  = "7.5.1"
-    lazy val log4cats                   = "2.6.0"
-    lazy val logback                    = "1.4.14"
-    lazy val fastparse                  = "3.0.2"
-    lazy val avro4s                     = "5.0.9"
+    lazy val catsEffect                 = "3.6.1"
+    lazy val catsEffectTestingScalatest = "1.6.0"
+    lazy val decline                    = "2.5.0"
+    lazy val fs2                        = "3.12.0"
+    lazy val fs2Kafka                   = "3.8.0"
+    lazy val scalatest                  = "3.2.19"
+    lazy val confluent                  = "7.9.1"
+    lazy val log4cats                   = "2.7.1"
+    lazy val logback                    = "1.5.18"
+    lazy val fastparse                  = "3.1.1"
+    lazy val avro4s                     = "5.0.14"
   }
 
   lazy val libraries: Seq[ModuleID] = Seq(

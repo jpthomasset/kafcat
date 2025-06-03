@@ -7,7 +7,7 @@ import org.apache.avro.generic.{GenericData, GenericRecord}
 import org.apache.avro.util.Utf8
 
 extension (p: Predicate) {
-  def eval(record: ConsumerRecord[_, _]): Boolean = p match {
+  def eval(record: ConsumerRecord[?, ?]): Boolean = p match {
     case IsEqual(left, right)    => getValue(record, left) == getValue(record, right)
     case IsNotEqual(left, right) => getValue(record, left) != getValue(record, right)
 
@@ -16,13 +16,13 @@ extension (p: Predicate) {
 
   }
 
-  private def getValue(record: ConsumerRecord[_, _], value: Value): Option[Constant] =
+  private def getValue(record: ConsumerRecord[?, ?], value: Value): Option[Constant] =
     value match {
       case f: Field    => getFieldValue(record, f)
       case c: Constant => Some(c)
     }
 
-  private def getFieldValue(record: ConsumerRecord[_, _], field: Field): Option[Constant] =
+  private def getFieldValue(record: ConsumerRecord[?, ?], field: Field): Option[Constant] =
     field.path match {
       case "key" :: Nil       => getAsConstant(record.key)
       case "value" :: Nil     => getAsConstant(record.value)

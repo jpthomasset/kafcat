@@ -22,7 +22,7 @@ object AvroSerdes {
   class GenericRecordDeserializer(configuration: SerdesConfiguration) extends Deserializer[GenericRecord] {
     private val inner = new KafkaAvroDeserializer(configuration.registryClient.orNull, configuration.asProps)
 
-    override def configure(configs: java.util.Map[String, _], isKey: Boolean): Unit =
+    override def configure(configs: java.util.Map[String, ?], isKey: Boolean): Unit =
       inner.configure(configs, isKey)
 
     override def deserialize(topic: String, data: Array[Byte]): GenericRecord =

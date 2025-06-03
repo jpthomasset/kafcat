@@ -99,7 +99,7 @@ object CliParser {
       "p"
     )
     .mapValidated(s =>
-      fastparse.parse(s, PredicateParser.predicate(_)) match {
+      fastparse.parse(s, PredicateParser.predicate(using _)) match {
         case Parsed.Success(p, _) => Validated.valid(p)
         case f: Parsed.Failure    => Validated.invalid(NonEmptyList.of(f.msg))
       }

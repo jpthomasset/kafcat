@@ -33,7 +33,7 @@ object App
       .through(Fs2Pipes.skipNullValues(cliArgs.skipNullValues))
       .filter(cr => cliArgs.predicate.map(_.eval(cr.record)).getOrElse(true))
       .through(Fs2Pipes.take(cliArgs.number))
-      .foreach(cr => IO.println(RecordFormater.format(cr.record, cliArgs.format)(showK, showV)))
+      .foreach(cr => IO.println(RecordFormater.format(cr.record, cliArgs.format)(using showK, showV)))
       .compile
       .drain
       .recoverWith { case NoMoreEventException(s) => Console[IO].errorln(s) }

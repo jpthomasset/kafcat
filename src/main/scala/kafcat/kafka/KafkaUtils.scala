@@ -35,7 +35,7 @@ object KafkaUtils {
     }
   }
 
-  def seekOffset(topic: String, since: Option[Instant], consumer: KafkaConsumer[IO, _, _]): IO[Unit] =
+  def seekOffset(topic: String, since: Option[Instant], consumer: KafkaConsumer[IO, ?, ?]): IO[Unit] =
     since match {
       case Some(instant) =>
         val timestamp = instant.toEpochMilli
