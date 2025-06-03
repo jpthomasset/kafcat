@@ -26,7 +26,7 @@ object App
     val showV = DeserializerTag.getShow(v)
 
     KafkaConsumer
-      .stream(KafkaUtils.settings(cliArgs.broker, k.build, v.build, cliArgs.offsetReset))
+      .stream(KafkaUtils.settings(cliArgs.broker, k.build, v.build, cliArgs.offsetReset, cliArgs.saslPlainConfig))
       .evalTap(KafkaUtils.seekOffset(cliArgs.topic, cliArgs.since, _))
       .records
       .through(Fs2Pipes.timeoutWhenNoEvent(cliArgs.timeout))

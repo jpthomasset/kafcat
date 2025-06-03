@@ -6,6 +6,8 @@ import cats.effect.IO
 import cats.implicits._
 import fs2.kafka._
 import org.apache.kafka.common.TopicPartition
+import org.apache.kafka.clients.CommonClientConfigs
+import org.apache.kafka.common.config.SaslConfigs
 
 object KafkaUtils {
 
@@ -13,11 +15,25 @@ object KafkaUtils {
     bootstrapServer: String,
     keydes: KeyDeserializer[IO, K],
     valuedes: ValueDeserializer[IO, V],
-    offsetReset: AutoOffsetReset
-  ) =
-    ConsumerSettings(keydes, valuedes)
+    offsetReset: AutoOffsetReset,
+    saslPlainConfig: Option[SaslPlainConfig]
+  ) = {
+    val baseSettings = ConsumerSettings(keydes, valuedes)
       .withAutoOffsetReset(offsetReset)
       .withBootstrapServers(bootstrapServer)
+
+    saslPlainConfig.foldLeft(baseSettings) { (settings, sasl) =>
+      settings
+        .withProperties(
+          Map(
+            CommonClientConfigs.SECURITY_PROTOCOL_CONFIG -> "SASL_SSL",
+            SaslConfigs.SASL_JAAS_CONFIG                 -> s"""org.apache.kafka.common.security.plain.PlainLoginModule required username="${sasl.username}" password="${sasl.password}";""",
+            SaslConfigs.SASL_MECHANISM                   -> "PLAIN",
+            CommonClientConfigs.CLIENT_DNS_LOOKUP_CONFIG -> "use_all_dns_ips"
+          )
+        )
+    }
+  }
 
   def seekOffset(topic: String, since: Option[Instant], consumer: KafkaConsumer[IO, _, _]): IO[Unit] =
     since match {

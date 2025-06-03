@@ -11,6 +11,7 @@ import com.monovore.decline.time._
 import fastparse._
 import fs2.kafka.AutoOffsetReset
 import kafcat.kafka.DeserializerType
+import kafcat.kafka.SaslPlainConfig
 import kafcat.predicate._
 
 object CliParser {
@@ -30,14 +31,16 @@ object CliParser {
     skipNullValues: Boolean = false,
     timeout: Option[FiniteDuration] = None,
     offsetReset: AutoOffsetReset = AutoOffsetReset.Latest,
-    since: Option[Instant] = None
+    since: Option[Instant] = None,
+    saslPlainConfig: Option[SaslPlainConfig] = None
   )
 
   val deserializerMap = Map(
-    "string" -> DeserializerType.String,
-    "long"   -> DeserializerType.Long,
-    "avro"   -> DeserializerType.Avro,
-    "raw"    -> DeserializerType.Raw
+    "string"      -> DeserializerType.String,
+    "long"        -> DeserializerType.Long,
+    "avro"        -> DeserializerType.Avro,
+    "raw"         -> DeserializerType.Raw,
+    "gzip-string" -> DeserializerType.GzipString
   )
 
   implicit val deserializerArgument: Argument[DeserializerType] = Argument.fromMap(
@@ -130,6 +133,18 @@ object CliParser {
 
   val since = Opts.option[Instant]("since", "Start consuming from this timestamp (ISO Format)").orNone
 
+  val saslPlain = Opts
+    .option[String]("sasl-plain", "SASL Plain configuration in the form of username:password")
+    .mapValidated { config =>
+      config.split(':') match {
+        case Array(username, password) =>
+          Validated.valid(SaslPlainConfig(username, password))
+        case _                         =>
+          Validated.invalid(NonEmptyList.of("Invalid SASL Plain configuration. Expected format is username:password."))
+      }
+    }
+    .orNone
+
   val parse: Opts[CliArgument] =
     (
       topic,
@@ -146,7 +161,8 @@ object CliParser {
       skipNullValues,
       timeout,
       offsetReset,
-      since
+      since,
+      saslPlain
     )
       .mapN(CliArgument.apply)
 

@@ -2,18 +2,21 @@ package kafcat.kafka
 
 import cats.Show
 import cats.effect.IO
+import fs2.Stream
 import fs2.kafka.Deserializer
 import org.apache.avro.generic.GenericRecord
 import org.apache.kafka.common.serialization.{
   Deserializer => KafkaDeserializer,
   LongDeserializer => KafkaLongDeserializer
 }
+import fs2.compression.Compression
 
 enum DeserializerType {
   case String
   case Long
   case Avro
   case Raw
+  case GzipString
 }
 
 trait DeserializerTag {
@@ -25,10 +28,11 @@ trait DeserializerTag {
 object DeserializerTag {
   def getDeserializerTag(arg: DeserializerType, schemaRegistryUrl: String): DeserializerTag =
     arg match {
-      case DeserializerType.String => StringDeserializer
-      case DeserializerType.Long   => LongDeserializer
-      case DeserializerType.Avro   => AvroDeserializer(schemaRegistryUrl)
-      case DeserializerType.Raw    => RawDeserializer
+      case DeserializerType.String     => StringDeserializer
+      case DeserializerType.Long       => LongDeserializer
+      case DeserializerType.Avro       => AvroDeserializer(schemaRegistryUrl)
+      case DeserializerType.Raw        => RawDeserializer
+      case DeserializerType.GzipString => GZipStringDeserializer
     }
 
   def getShow(tag: DeserializerTag): Show[tag.Type] = tag match {
@@ -64,6 +68,28 @@ object RawDeserializer extends DeserializerTag {
   def build: Deserializer[IO, Array[Byte]] = Deserializer.lift { bytes =>
     IO(bytes)
   }
+}
+
+object GZipStringDeserializer extends DeserializerTag {
+  type Type = Option[String]
+
+  def build: Deserializer[IO, Type] = Deserializer.lift { bytes =>
+    IO(Option(bytes)).flatMap {
+      case Some(data) =>
+        inflateGzip(data).map(inflated => Some(String(inflated)))
+      case None       => IO.pure(None)
+    }
+  }
+
+  private def inflateGzip(
+    bytes: Array[Byte]
+  ): IO[Array[Byte]] =
+    Stream
+      .emits[IO, Byte](bytes)
+      .through(Compression.forSync[IO].gunzip())
+      .flatMap(_.content)
+      .compile
+      .to(Array)
 }
 
 case class AvroDeserializer(schemaRegistryUrl: String) extends DeserializerTag {

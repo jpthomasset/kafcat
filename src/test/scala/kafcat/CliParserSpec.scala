@@ -9,6 +9,7 @@ import kafcat.CliParser.CliArgument
 import kafcat.predicate.{Field, IsEqual, NumberConstant}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+import kafcat.kafka.SaslPlainConfig
 
 class CliParserSpec extends AnyWordSpec with Matchers {
   "CliParser" should {
@@ -103,6 +104,12 @@ class CliParserSpec extends AnyWordSpec with Matchers {
       val expected = Right(CliArgument("some-topic", since = Some(Instant.parse("2024-02-15T08:05:20.341Z"))))
 
       testParser.parse(List("--since", "2024-02-15T08:05:20.341Z", "some-topic")) should be(expected)
+    }
+
+    "parse SASL Config" in {
+      val expected = Right(CliArgument("some-topic", saslPlainConfig = Some(SaslPlainConfig("user", "pass"))))
+
+      testParser.parse(List("--sasl-plain", "user:pass", "some-topic")) should be(expected)
     }
   }
 }
