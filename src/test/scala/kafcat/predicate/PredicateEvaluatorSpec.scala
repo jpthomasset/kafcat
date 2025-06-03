@@ -119,5 +119,11 @@ class PredicateEvaluatorSpec extends AnyWordSpec with Matchers {
           )
         predicate.eval(cr) should be(false)
       }
+
+      "evaluate equality with simple optional key" in {
+        val cr        = ConsumerRecord("topic", 0, 0, Some("some-key"), "some event")
+        val predicate = IsEqual(Field(List("key")), StringConstant("some-key"))
+        predicate.eval(cr) should be(true)
+      }
     }
 }

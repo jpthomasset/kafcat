@@ -55,6 +55,7 @@ extension (p: Predicate) {
       case s: String                 => Some(StringConstant(s))
       case u: Utf8                   => Some(StringConstant(u.toString))
       case s: GenericData.EnumSymbol => Some(StringConstant(s.toString))
+      case Some(x)                   => getAsConstant(x)
       case _                         => None
     }
 }
