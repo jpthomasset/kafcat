@@ -7,8 +7,14 @@ import org.scalatest.wordspec.AnyWordSpec
 class PredicateParserSpec extends AnyWordSpec with Matchers {
   def checkParser[T](input: String, parser: P[?] => P[T], expected: T) =
     parse(input, parser(_)) match {
-      case Parsed.Success(value, _)    => value should be(expected)
-      case f @ Parsed.Failure(_, _, _) => fail(s"Failed to parse input $input: ${f.msg}")
+      case Parsed.Success(value, _) => value should be(expected)
+      case f: Parsed.Failure        => fail(s"Failed to parse input $input: ${f.msg}")
+    }
+
+  def checkFailure[T](input: String, parser: P[?] => P[T]) =
+    parse(input, parser(_)) match {
+      case Parsed.Success(value, _) => fail(s"Expected failure for input $input, but got success with value $value")
+      case _: Parsed.Failure        => succeed
     }
 
   "PredicateParser" should {
@@ -73,6 +79,12 @@ class PredicateParserSpec extends AnyWordSpec with Matchers {
       val expected = IsNotEqual(NumberConstant(12), NumberConstant(13))
 
       checkParser(input, PredicateParser.predicate(using _), expected)
+    }
+
+    "fail to parse invalid operator" in {
+      val input = "field.id = 13"
+
+      checkFailure(input, PredicateParser.predicate(using _))
     }
 
     // "parse a simple >" in {

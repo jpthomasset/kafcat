@@ -8,8 +8,28 @@ import org.apache.avro.util.Utf8
 
 extension (p: Predicate) {
   def eval(record: ConsumerRecord[?, ?]): Boolean = p match {
-    case IsEqual(left, right)    => getValue(record, left) == getValue(record, right)
-    case IsNotEqual(left, right) => getValue(record, left) != getValue(record, right)
+    case IsEqual(left, right)              => getValue(record, left) == getValue(record, right)
+    case IsNotEqual(left, right)           => getValue(record, left) != getValue(record, right)
+    case IsGreaterThan(left, right)        =>
+      (getValue(record, left), getValue(record, right)) match {
+        case (Some(NumberConstant(l)), Some(NumberConstant(r))) => l > r
+        case _                                                  => false
+      }
+    case IsGreaterThanOrEqual(left, right) =>
+      (getValue(record, left), getValue(record, right)) match {
+        case (Some(NumberConstant(l)), Some(NumberConstant(r))) => l >= r
+        case _                                                  => false
+      }
+    case IsLessThan(left, right)           =>
+      (getValue(record, left), getValue(record, right)) match {
+        case (Some(NumberConstant(l)), Some(NumberConstant(r))) => l < r
+        case _                                                  => false
+      }
+    case IsLessThanOrEqual(left, right)    =>
+      (getValue(record, left), getValue(record, right)) match {
+        case (Some(NumberConstant(l)), Some(NumberConstant(r))) => l <= r
+        case _                                                  => false
+      }
 
     case Or(left, right)  => left.eval(record) || right.eval(record)
     case And(left, right) => left.eval(record) && right.eval(record)
